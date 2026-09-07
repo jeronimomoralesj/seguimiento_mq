@@ -67,6 +67,8 @@ export async function POST(req: NextRequest) {
       doc.collectionReportImage = body.collectionReportImage;
       doc.top5SalesImage = body.top5SalesImage;
       doc.top5CollectionImage = body.top5CollectionImage;
+      doc.salesCommitment = body.salesCommitment || "";
+      doc.collectionCommitment = body.collectionCommitment || "";
     } else {
       doc.photos = (body.photos || []).filter(Boolean).slice(0, 3);
     }
