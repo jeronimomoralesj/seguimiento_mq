@@ -302,8 +302,11 @@ export default function PresentationPage() {
       .finally(() => setLoading(false));
   }, [selectedPeriod, reportType]);
 
-  // Build flat slide list: sales zones get 2 slides, others get 1
-  const slideItems: SlideItem[] = AREAS.reduce<SlideItem[]>((acc, a) => {
+  // Build flat slide list: always Líderes de Zona → Líneas → Departamentos
+  const TYPE_ORDER: Record<string, number> = { sales_zone: 0, linea: 1, department: 2 };
+  const sortedAreas = [...AREAS].sort((a, b) => TYPE_ORDER[a.type] - TYPE_ORDER[b.type]);
+
+  const slideItems: SlideItem[] = sortedAreas.reduce<SlideItem[]>((acc, a) => {
     if (!reports[a.slug]) return acc;
     const r = reports[a.slug];
     if (a.type === "sales_zone") {
