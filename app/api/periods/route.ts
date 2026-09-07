@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
           latestDate: { $max: "$date" },
         },
       },
-      { $sort: { _id: -1 } }, // newest first
+      { $sort: { latestDate: -1 } }, // newest first by actual report date
       { $project: { period: "$_id", periodLabel: 1, count: 1, latestDate: 1, _id: 0 } },
     ]);
 

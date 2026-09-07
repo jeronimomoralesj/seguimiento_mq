@@ -233,7 +233,7 @@ function AreaSlide({ area, report, slideNum, total, onImageClick }: {
         <div className="flex-1 min-w-0">
           <h2 className="text-base font-bold text-white leading-tight">{area.name}</h2>
           <p className="text-white/35 text-[11px]">
-            {area.type === "sales_zone" ? "Zona de Ventas" : "Departamento"} &middot; {report.periodLabel}
+            {area.type === "sales_zone" ? "Zona de Ventas" : area.type === "linea" ? "Línea" : "Departamento"} &middot; {report.periodLabel}
           </p>
         </div>
         <div className="bg-white/8 border border-white/10 rounded-xl px-3 py-1.5 shrink-0">
@@ -280,7 +280,7 @@ function LeftPanel({ area, report }: { area: (typeof AREAS)[0]; report: Report }
         <div>
           <h3 className="text-white font-bold text-lg leading-tight">{area.name}</h3>
           <p className="text-white/40 text-xs mt-0.5">
-            {area.type === "sales_zone" ? "Zona de Ventas" : "Departamento"}
+            {area.type === "sales_zone" ? "Zona de Ventas" : area.type === "linea" ? "Línea" : "Departamento"}
           </p>
         </div>
 
@@ -332,31 +332,37 @@ function LeftPanel({ area, report }: { area: (typeof AREAS)[0]; report: Report }
   );
 }
 
-// ─── Sales zone: 2×2 image grid, object-contain, never cropped ───────────────
+// ─── Sales zone: 2×2 image grid with inline compromisos ──────────────────────
 function SalesImages({ report, onImageClick }: { report: Report; onImageClick: (s: string) => void }) {
-  const images = [
-    { label: "Informe de Ventas",  src: report.salesReportImage },
-    { label: "Informe de Recaudo", src: report.collectionReportImage },
-    { label: "Top 5 Ventas",       src: report.top5SalesImage },
-    { label: "Top 5 Recaudo",      src: report.top5CollectionImage },
+  const cells = [
+    { label: "Informe de Ventas",  src: report.salesReportImage,      compromiso: report.salesCommitment },
+    { label: "Informe de Recaudo", src: report.collectionReportImage, compromiso: report.collectionCommitment },
+    { label: "Top 5 Ventas",       src: report.top5SalesImage,        compromiso: undefined },
+    { label: "Top 5 Recaudo",      src: report.top5CollectionImage,   compromiso: undefined },
   ];
 
   return (
     <div className="h-full" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "8px" }}>
-      {images.map(({ label, src }) => (
+      {cells.map(({ label, src, compromiso }) => (
         <div key={label} className="flex flex-col gap-1 min-h-0 overflow-hidden">
           <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest shrink-0">{label}</p>
           {src ? (
             <button
               onClick={() => onImageClick(src)}
-              className="flex-1 rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all group min-h-0"
+              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all group min-h-0 ${compromiso ? "flex-[3]" : "flex-1"}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={src} alt={label} className="w-full h-full object-contain p-1" />
             </button>
           ) : (
-            <div className="flex-1 rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0">
+            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${compromiso ? "flex-[3]" : "flex-1"}`}>
               Sin imagen
+            </div>
+          )}
+          {compromiso && (
+            <div className="flex-1 min-h-0 bg-white/5 border border-white/10 rounded-xl px-3 py-2 overflow-y-auto">
+              <p className="text-[8px] font-bold uppercase tracking-widest text-[#F5A623] mb-1">Compromiso</p>
+              <p className="text-white/80 text-[10px] leading-relaxed whitespace-pre-wrap">{compromiso}</p>
             </div>
           )}
         </div>
