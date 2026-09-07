@@ -56,6 +56,7 @@ export const AREAS: Area[] = [
   { slug: "sistemas",                 name: "Sistemas",                 type: "department", color: "#5D5D5D" },
   { slug: "departamento-de-la-gente", name: "Departamento de la Gente", type: "department", color: "#6D6D6D" },
   { slug: "cartera",                  name: "Cartera",                  type: "department", color: "#964B0E" },
+  { slug: "tesoreria",               name: "Tesorería",                type: "department", color: "#7A5C3A" },
 ];
 
 export function getArea(slug: string): Area | undefined {

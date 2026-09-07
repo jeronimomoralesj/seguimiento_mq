@@ -123,22 +123,22 @@ function SalesMainSlide({ area, report, onImageClick }: {
       <div className="flex-1 min-h-0 grid grid-cols-2 gap-4">
         {/* Ventas column */}
         <div className="flex flex-col gap-2 min-h-0">
-          <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest shrink-0">Informe de Ventas</p>
+          <p className="text-white text-sm font-bold uppercase tracking-widest shrink-0">Informe de Ventas</p>
           {report.salesReportImage ? (
             <button onClick={() => onImageClick(report.salesReportImage!)}
-              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.salesCommitment ? "flex-[3]" : "flex-1"}`}>
+              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.salesCommitment ? "flex-[2]" : "flex-1"}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={report.salesReportImage} alt="Ventas" className="w-full h-full object-contain p-1" />
             </button>
           ) : (
-            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.salesCommitment ? "flex-[3]" : "flex-1"}`}>
+            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.salesCommitment ? "flex-[2]" : "flex-1"}`}>
               Sin imagen
             </div>
           )}
           {report.salesCommitment && (
-            <div className="flex-[2] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-3 py-2.5 overflow-y-auto">
-              <p className="text-[8px] font-bold uppercase tracking-widest text-[#F5A623] mb-1.5">Compromiso</p>
-              <div className="rich-text-dark text-white/85 text-[10px] leading-relaxed"
+            <div className="flex-[3] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
+              <div className="rich-text-dark text-white/90 text-xs leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: report.salesCommitment }} />
             </div>
           )}
@@ -146,22 +146,22 @@ function SalesMainSlide({ area, report, onImageClick }: {
 
         {/* Recaudo column */}
         <div className="flex flex-col gap-2 min-h-0">
-          <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest shrink-0">Informe de Recaudo</p>
+          <p className="text-white text-sm font-bold uppercase tracking-widest shrink-0">Informe de Recaudo</p>
           {report.collectionReportImage ? (
             <button onClick={() => onImageClick(report.collectionReportImage!)}
-              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.collectionCommitment ? "flex-[3]" : "flex-1"}`}>
+              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.collectionCommitment ? "flex-[2]" : "flex-1"}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={report.collectionReportImage} alt="Recaudo" className="w-full h-full object-contain p-1" />
             </button>
           ) : (
-            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.collectionCommitment ? "flex-[3]" : "flex-1"}`}>
+            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.collectionCommitment ? "flex-[2]" : "flex-1"}`}>
               Sin imagen
             </div>
           )}
           {report.collectionCommitment && (
-            <div className="flex-[2] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-3 py-2.5 overflow-y-auto">
-              <p className="text-[8px] font-bold uppercase tracking-widest text-[#F5A623] mb-1.5">Compromiso</p>
-              <div className="rich-text-dark text-white/85 text-[10px] leading-relaxed"
+            <div className="flex-[3] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
+              <div className="rich-text-dark text-white/90 text-xs leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: report.collectionCommitment }} />
             </div>
           )}
