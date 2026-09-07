@@ -34,25 +34,27 @@ export interface Report {
 
 export const AREAS: Area[] = [
   // Sales zones
-  { slug: "andina",           name: "Andina",           type: "sales_zone", color: "#F5A623" },
-  { slug: "antioquia",        name: "Antioquia",        type: "sales_zone", color: "#E8951E" },
-  { slug: "caribe",           name: "Caribe",           type: "sales_zone", color: "#D4831A" },
-  { slug: "centro-oriente",   name: "Centro Oriente",   type: "sales_zone", color: "#C07016" },
-  { slug: "sur-occidente",    name: "Sur Occidente",    type: "sales_zone", color: "#AB5E12" },
-  { slug: "venta-telefonica", name: "Venta Telefónica", type: "sales_zone", color: "#964B0E" },
+  { slug: "andina",                name: "Andina",                  type: "sales_zone", color: "#F5A623" },
+  { slug: "antioquia",             name: "Antioquia",               type: "sales_zone", color: "#E8951E" },
+  { slug: "caribe",                name: "Caribe",                  type: "sales_zone", color: "#D4831A" },
+  { slug: "centro-oriente",        name: "Centro Oriente",          type: "sales_zone", color: "#C07016" },
+  { slug: "sur-occidente",         name: "Sur Occidente",           type: "sales_zone", color: "#AB5E12" },
+  { slug: "venta-telefonica",      name: "Venta Telefónica",        type: "sales_zone", color: "#964B0E" },
+  { slug: "admon-nacional-flotas", name: "Admon Nacional y Flotas", type: "sales_zone", color: "#7A3B0A" },
+  { slug: "general",               name: "General",                 type: "sales_zone", color: "#5C2A07" },
   // Líneas
-  { slug: "tbr",          name: "T.B.R",          type: "linea", color: "#F5A623" },
+  { slug: "tbr",            name: "T.B.R",          type: "linea", color: "#F5A623" },
   { slug: "sr-rin-bat-cst", name: "SR-RIN-BAT-CST", type: "linea", color: "#E8951E" },
-  { slug: "plt",          name: "PLT",            type: "linea", color: "#D4831A" },
+  { slug: "plt",            name: "PLT",             type: "linea", color: "#D4831A" },
+  { slug: "pcr",            name: "PCR",             type: "linea", color: "#C07016" },
+  { slug: "lubricantes",    name: "Lubricantes",     type: "linea", color: "#AB5E12" },
   // Departments
-  { slug: "supply-chain",              name: "Supply Chain",              type: "department", color: "#2D2D2D" },
-  { slug: "mercadeo",                  name: "Mercadeo",                  type: "department", color: "#3D3D3D" },
-  { slug: "recaudo",                   name: "Recaudo",                   type: "department", color: "#4D4D4D" },
-  { slug: "sistemas",                  name: "Sistemas",                  type: "department", color: "#5D5D5D" },
+  { slug: "supply-chain",             name: "Supply Chain",             type: "department", color: "#2D2D2D" },
+  { slug: "mercadeo",                 name: "Mercadeo",                 type: "department", color: "#3D3D3D" },
+  { slug: "recaudo",                  name: "Recaudo",                  type: "department", color: "#4D4D4D" },
+  { slug: "sistemas",                 name: "Sistemas",                 type: "department", color: "#5D5D5D" },
   { slug: "departamento-de-la-gente", name: "Departamento de la Gente", type: "department", color: "#6D6D6D" },
-  { slug: "pcr",                       name: "PCR",                       type: "department", color: "#D4831A" },
-  { slug: "lubricantes",               name: "Lubricantes",               type: "department", color: "#C07016" },
-  { slug: "cartera",                   name: "Cartera",                   type: "department", color: "#AB5E12" },
+  { slug: "cartera",                  name: "Cartera",                  type: "department", color: "#964B0E" },
 ];
 
 export function getArea(slug: string): Area | undefined {
