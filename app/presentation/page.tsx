@@ -8,6 +8,15 @@ import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
 interface PeriodOption { period: string; periodLabel: string; count: number; }
 
+function compromisoFontSize(html: string): string {
+  const len = html.replace(/<[^>]*>/g, "").trim().length;
+  if (len < 60)  return "text-lg leading-snug";
+  if (len < 120) return "text-base leading-snug";
+  if (len < 220) return "text-sm leading-relaxed";
+  if (len < 380) return "text-xs leading-relaxed";
+  return "text-[10px] leading-relaxed";
+}
+
 type SlideItem =
   | { kind: "sales-main"; area: Area; report: Report }
   | { kind: "sales-top5"; area: Area; report: Report }
@@ -126,19 +135,19 @@ function SalesMainSlide({ area, report, onImageClick }: {
           <p className="text-white text-sm font-bold uppercase tracking-widest shrink-0">Informe de Ventas</p>
           {report.salesReportImage ? (
             <button onClick={() => onImageClick(report.salesReportImage!)}
-              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.salesCommitment ? "flex-[2]" : "flex-1"}`}>
+              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.salesCommitment ? "flex-[3]" : "flex-1"}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={report.salesReportImage} alt="Ventas" className="w-full h-full object-contain p-1" />
             </button>
           ) : (
-            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.salesCommitment ? "flex-[2]" : "flex-1"}`}>
+            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.salesCommitment ? "flex-[3]" : "flex-1"}`}>
               Sin imagen
             </div>
           )}
           {report.salesCommitment && (
-            <div className="flex-[3] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
+            <div className="flex-[2] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
               <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
-              <div className="rich-text-dark text-white/90 text-xs leading-relaxed"
+              <div className={`rich-text-dark text-white/90 ${compromisoFontSize(report.salesCommitment)}`}
                 dangerouslySetInnerHTML={{ __html: report.salesCommitment }} />
             </div>
           )}
@@ -149,19 +158,19 @@ function SalesMainSlide({ area, report, onImageClick }: {
           <p className="text-white text-sm font-bold uppercase tracking-widest shrink-0">Informe de Recaudo</p>
           {report.collectionReportImage ? (
             <button onClick={() => onImageClick(report.collectionReportImage!)}
-              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.collectionCommitment ? "flex-[2]" : "flex-1"}`}>
+              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.collectionCommitment ? "flex-[3]" : "flex-1"}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={report.collectionReportImage} alt="Recaudo" className="w-full h-full object-contain p-1" />
             </button>
           ) : (
-            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.collectionCommitment ? "flex-[2]" : "flex-1"}`}>
+            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.collectionCommitment ? "flex-[3]" : "flex-1"}`}>
               Sin imagen
             </div>
           )}
           {report.collectionCommitment && (
-            <div className="flex-[3] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
+            <div className="flex-[2] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
               <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
-              <div className="rich-text-dark text-white/90 text-xs leading-relaxed"
+              <div className={`rich-text-dark text-white/90 ${compromisoFontSize(report.collectionCommitment)}`}
                 dangerouslySetInnerHTML={{ __html: report.collectionCommitment }} />
             </div>
           )}
