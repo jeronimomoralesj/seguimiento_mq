@@ -3,9 +3,12 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { getArea, getCurrentPeriod } from "@/types";
 import type { ReportPeriodType, Report } from "@/types";
 import { ArrowLeft, Upload, X, Monitor, Check, Pencil } from "lucide-react";
+
+const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -238,12 +241,12 @@ export default function UploadPage() {
                   <ImageUploadBox label="Informe de Ventas" value={salesImg} onChange={setSalesImg} />
                   <div className="flex flex-col">
                     <label className="text-sm font-semibold text-zinc-700 mb-2">Compromiso Informe de Ventas</label>
-                    <textarea
+                    <RichTextEditor
+                      key={`sales-${reportType}-${fetching}`}
                       value={salesCommitment}
-                      onChange={(e) => setSalesCommitment(e.target.value)}
-                      rows={5}
+                      onChange={setSalesCommitment}
                       placeholder="Escribe el compromiso de ventas para este período..."
-                      className="input-field resize-none flex-1"
+                      rows={5}
                     />
                   </div>
                 </div>
@@ -253,12 +256,12 @@ export default function UploadPage() {
                   <ImageUploadBox label="Informe de Recaudo" value={collectionImg} onChange={setCollectionImg} />
                   <div className="flex flex-col">
                     <label className="text-sm font-semibold text-zinc-700 mb-2">Compromiso Informe de Recaudo</label>
-                    <textarea
+                    <RichTextEditor
+                      key={`collection-${reportType}-${fetching}`}
                       value={collectionCommitment}
-                      onChange={(e) => setCollectionCommitment(e.target.value)}
-                      rows={5}
+                      onChange={setCollectionCommitment}
                       placeholder="Escribe el compromiso de recaudo para este período..."
-                      className="input-field resize-none flex-1"
+                      rows={5}
                     />
                   </div>
                 </div>

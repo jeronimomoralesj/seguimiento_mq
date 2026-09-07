@@ -209,14 +209,14 @@ function ReportDetail({ report, slug, isEditable }: { report: Report; slug: stri
           {report.salesCommitment ? (
             <div className="bg-white rounded-2xl border border-zinc-100 p-4">
               <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Compromiso Informe de Ventas</p>
-              <p className="text-zinc-700 text-sm whitespace-pre-wrap leading-relaxed">{report.salesCommitment}</p>
+              <div className="rich-text text-zinc-700 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: report.salesCommitment }} />
             </div>
           ) : <div />}
           <ImgCard title="Informe de Recaudo" src={report.collectionReportImage} />
           {report.collectionCommitment ? (
             <div className="bg-white rounded-2xl border border-zinc-100 p-4">
               <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Compromiso Informe de Recaudo</p>
-              <p className="text-zinc-700 text-sm whitespace-pre-wrap leading-relaxed">{report.collectionCommitment}</p>
+              <div className="rich-text text-zinc-700 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: report.collectionCommitment }} />
             </div>
           ) : <div />}
           <ImgCard title="Top 5 Ventas" src={report.top5SalesImage} />
@@ -225,7 +225,7 @@ function ReportDetail({ report, slug, isEditable }: { report: Report; slug: stri
         {report.notes && (
           <div className="bg-white rounded-2xl border border-zinc-100 p-5 mt-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Comentarios</p>
-            <p className="text-zinc-700 text-sm whitespace-pre-wrap leading-relaxed">{report.notes}</p>
+            <div className="rich-text text-zinc-700 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: report.notes }} />
           </div>
         )}
       </div>
@@ -251,7 +251,7 @@ function ReportDetail({ report, slug, isEditable }: { report: Report; slug: stri
       {report.notes && (
         <div className="bg-white rounded-2xl border border-zinc-100 p-5">
           <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Metas / Comentarios</p>
-          <p className="text-zinc-700 text-sm whitespace-pre-wrap leading-relaxed">{report.notes}</p>
+          <div className="rich-text text-zinc-700 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: report.notes }} />
         </div>
       )}
     </div>
