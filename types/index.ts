@@ -44,7 +44,8 @@ export const AREAS: Area[] = [
   { slug: "general",               name: "General",                 type: "sales_zone", color: "#5C2A07" },
   // Líneas
   { slug: "tbr",            name: "T.B.R",          type: "linea", color: "#F5A623" },
-  { slug: "sr-rin-bat-cst", name: "SR-RIN-BAT-CST", type: "linea", color: "#E8951E" },
+  { slug: "sr-rin-bat",     name: "SR-RIN-BAT",     type: "linea", color: "#E8951E" },
+  { slug: "cst",            name: "CST",             type: "linea", color: "#C8781A" },
   { slug: "plt",            name: "PLT",             type: "linea", color: "#D4831A" },
   { slug: "pcr",            name: "PCR",             type: "linea", color: "#C07016" },
   { slug: "lubricantes",    name: "Lubricantes",     type: "linea", color: "#AB5E12" },
