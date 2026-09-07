@@ -297,14 +297,33 @@ function LeftPanel({ area, report }: { area: (typeof AREAS)[0]; report: Report }
           </div>
         </div>
 
+        {(report.salesCommitment || report.collectionCommitment) && (
+          <>
+            <div className="w-full h-px bg-white/10 shrink-0" />
+            <div className="flex flex-col gap-2">
+              {report.salesCommitment && (
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-white/40 mb-1">Compromiso Ventas</p>
+                  <p className="text-white/75 text-xs leading-relaxed whitespace-pre-wrap">{report.salesCommitment}</p>
+                </div>
+              )}
+              {report.collectionCommitment && (
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-white/40 mb-1">Compromiso Recaudo</p>
+                  <p className="text-white/75 text-xs leading-relaxed whitespace-pre-wrap">{report.collectionCommitment}</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
         {report.notes && (
           <>
             <div className="w-full h-px bg-white/10 shrink-0" />
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-white/25 mb-2">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-white/40 mb-2">
                 {area.type === "sales_zone" ? "Comentarios" : "Metas / Comentarios"}
               </p>
-              <p className="text-white/70 text-xs leading-relaxed whitespace-pre-wrap">{report.notes}</p>
+              <p className="text-white/75 text-xs leading-relaxed whitespace-pre-wrap">{report.notes}</p>
             </div>
           </>
         )}
@@ -326,7 +345,7 @@ function SalesImages({ report, onImageClick }: { report: Report; onImageClick: (
     <div className="h-full" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "8px" }}>
       {images.map(({ label, src }) => (
         <div key={label} className="flex flex-col gap-1 min-h-0 overflow-hidden">
-          <p className="text-white/30 text-[9px] font-bold uppercase tracking-widest shrink-0">{label}</p>
+          <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest shrink-0">{label}</p>
           {src ? (
             <button
               onClick={() => onImageClick(src)}

@@ -73,6 +73,8 @@ export default function UploadPage() {
   const [collectionImg, setCollectionImg] = useState<string | undefined>();
   const [top5Sales, setTop5Sales] = useState<string | undefined>();
   const [top5Collection, setTop5Collection] = useState<string | undefined>();
+  const [salesCommitment, setSalesCommitment] = useState("");
+  const [collectionCommitment, setCollectionCommitment] = useState("");
   const [photos, setPhotos] = useState<(string | undefined)[]>([undefined, undefined, undefined]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -88,6 +90,7 @@ export default function UploadPage() {
     setIsEditing(false);
     setNotes(""); setSalesImg(undefined); setCollectionImg(undefined);
     setTop5Sales(undefined); setTop5Collection(undefined);
+    setSalesCommitment(""); setCollectionCommitment("");
     setPhotos([undefined, undefined, undefined]);
 
     fetch(`/api/reports?area=${slug}&reportType=${reportType}&period=${periodInfo.period}`)
@@ -102,6 +105,8 @@ export default function UploadPage() {
             setCollectionImg(ex.collectionReportImage);
             setTop5Sales(ex.top5SalesImage);
             setTop5Collection(ex.top5CollectionImage);
+            setSalesCommitment(ex.salesCommitment || "");
+            setCollectionCommitment(ex.collectionCommitment || "");
           } else {
             const p = ex.photos || [];
             setPhotos([p[0], p[1], p[2]]);
@@ -127,7 +132,14 @@ export default function UploadPage() {
       reportType, period: periodInfo.period, periodLabel: periodInfo.label, notes,
     };
     if (area.type === "sales_zone") {
-      Object.assign(payload, { salesReportImage: salesImg, collectionReportImage: collectionImg, top5SalesImage: top5Sales, top5CollectionImage: top5Collection });
+      Object.assign(payload, {
+        salesReportImage: salesImg,
+        collectionReportImage: collectionImg,
+        top5SalesImage: top5Sales,
+        top5CollectionImage: top5Collection,
+        salesCommitment,
+        collectionCommitment,
+      });
     } else {
       payload.photos = photos.filter(Boolean);
     }
@@ -142,6 +154,11 @@ export default function UploadPage() {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally { setLoading(false); }
   };
+
+  const areaLabel =
+    area.type === "sales_zone" ? "Zona de Ventas" :
+    area.type === "linea"      ? "Línea" :
+                                 "Departamento";
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -211,20 +228,50 @@ export default function UploadPage() {
               </div>
             </div>
 
-            {/* Images */}
+            {/* Images + commitments (sales zones only) */}
             {area.type === "sales_zone" ? (
-              <div className="bg-white rounded-2xl border border-zinc-100 p-5">
-                <p className="text-sm font-bold text-zinc-800 mb-4">Informes e Imágenes</p>
+              <div className="bg-white rounded-2xl border border-zinc-100 p-5 space-y-5">
+                <p className="text-sm font-bold text-zinc-800">Informes e Imágenes</p>
+
+                {/* Ventas row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <ImageUploadBox label="Informe de Ventas" value={salesImg} onChange={setSalesImg} />
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-zinc-700 mb-2">Compromiso Informe de Ventas</label>
+                    <textarea
+                      value={salesCommitment}
+                      onChange={(e) => setSalesCommitment(e.target.value)}
+                      rows={5}
+                      placeholder="Escribe el compromiso de ventas para este período..."
+                      className="input-field resize-none flex-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Recaudo row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <ImageUploadBox label="Informe de Recaudo" value={collectionImg} onChange={setCollectionImg} />
+                  <div className="flex flex-col">
+                    <label className="text-sm font-semibold text-zinc-700 mb-2">Compromiso Informe de Recaudo</label>
+                    <textarea
+                      value={collectionCommitment}
+                      onChange={(e) => setCollectionCommitment(e.target.value)}
+                      rows={5}
+                      placeholder="Escribe el compromiso de recaudo para este período..."
+                      className="input-field resize-none flex-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Top 5 row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <ImageUploadBox label="Top 5 Ventas" value={top5Sales} onChange={setTop5Sales} />
                   <ImageUploadBox label="Top 5 Recaudo" value={top5Collection} onChange={setTop5Collection} />
                 </div>
               </div>
             ) : (
               <div className="bg-white rounded-2xl border border-zinc-100 p-5">
-                <p className="text-sm font-bold text-zinc-800 mb-4">Fotos (máx. 3)</p>
+                <p className="text-sm font-bold text-zinc-800 mb-4">Fotos (máx. 3) — {areaLabel}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[0, 1, 2].map((i) => (
                     <ImageUploadBox key={i} label={`Foto ${i + 1}`} value={photos[i]}

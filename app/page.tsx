@@ -4,7 +4,8 @@ import Image from "next/image";
 import { AREAS } from "@/types";
 import { Monitor } from "lucide-react";
 
-const salesZones = AREAS.filter((a) => a.type === "sales_zone");
+const salesZones  = AREAS.filter((a) => a.type === "sales_zone");
+const lineas      = AREAS.filter((a) => a.type === "linea");
 const departments = AREAS.filter((a) => a.type === "department");
 
 export default function HomePage() {
@@ -25,7 +26,6 @@ export default function HomePage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-10">
-        {/* Page title */}
         <div className="mb-10">
           <h1 className="text-2xl font-bold text-zinc-900">Seguimiento de Gestión</h1>
           <p className="text-zinc-500 text-sm mt-1">Selecciona tu área para ingresar o consultar reportes</p>
@@ -42,6 +42,17 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── Líneas ── */}
+        <section className="mb-10">
+          <div className="flex items-center gap-2 mb-5">
+            <span className="w-1 h-5 rounded-full bg-[#D4831A]" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-500">Líneas</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {lineas.map((area) => <AreaCard key={area.slug} area={area} />)}
+          </div>
+        </section>
+
         {/* ── Departments ── */}
         <section>
           <div className="flex items-center gap-2 mb-5">
@@ -54,7 +65,6 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Footer with logo */}
       <footer className="max-w-7xl mx-auto px-6 py-8 mt-6 border-t border-zinc-200 flex items-center justify-between">
         <Image src="/logo.jpeg" alt="Merquellantas" width={120} height={30} className="object-contain opacity-40" />
         <p className="text-xs text-zinc-400">Plataforma interna de seguimiento</p>
@@ -65,7 +75,10 @@ export default function HomePage() {
 
 function AreaCard({ area }: { area: (typeof AREAS)[0] }) {
   const initials = area.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
-  const isSales = area.type === "sales_zone";
+  const label =
+    area.type === "sales_zone" ? "Zona de Ventas" :
+    area.type === "linea"      ? "Línea" :
+                                 "Departamento";
 
   return (
     <Link
@@ -79,7 +92,7 @@ function AreaCard({ area }: { area: (typeof AREAS)[0] }) {
         {initials}
       </div>
       <span className="text-sm font-semibold text-zinc-800 leading-tight">{area.name}</span>
-      <span className="text-[11px] text-zinc-400 mt-1">{isSales ? "Zona de Ventas" : "Departamento"}</span>
+      <span className="text-[11px] text-zinc-400 mt-1">{label}</span>
     </Link>
   );
 }

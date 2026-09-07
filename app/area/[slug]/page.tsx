@@ -72,7 +72,9 @@ export default function AreaPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-zinc-900">{area.name}</h1>
-              <p className="text-sm text-zinc-400">{area.type === "sales_zone" ? "Zona de Ventas" : "Departamento"}</p>
+              <p className="text-sm text-zinc-400">
+            {area.type === "sales_zone" ? "Zona de Ventas" : area.type === "linea" ? "Línea" : "Departamento"}
+          </p>
             </div>
           </div>
           <Link
@@ -204,7 +206,19 @@ function ReportDetail({ report, slug, isEditable }: { report: Report; slug: stri
         {header}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <ImgCard title="Informe de Ventas" src={report.salesReportImage} />
+          {report.salesCommitment ? (
+            <div className="bg-white rounded-2xl border border-zinc-100 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Compromiso Informe de Ventas</p>
+              <p className="text-zinc-700 text-sm whitespace-pre-wrap leading-relaxed">{report.salesCommitment}</p>
+            </div>
+          ) : <div />}
           <ImgCard title="Informe de Recaudo" src={report.collectionReportImage} />
+          {report.collectionCommitment ? (
+            <div className="bg-white rounded-2xl border border-zinc-100 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Compromiso Informe de Recaudo</p>
+              <p className="text-zinc-700 text-sm whitespace-pre-wrap leading-relaxed">{report.collectionCommitment}</p>
+            </div>
+          ) : <div />}
           <ImgCard title="Top 5 Ventas" src={report.top5SalesImage} />
           <ImgCard title="Top 5 Recaudo" src={report.top5CollectionImage} />
         </div>
