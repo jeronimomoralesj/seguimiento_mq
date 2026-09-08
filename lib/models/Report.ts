@@ -13,9 +13,11 @@ const ReportSchema = new Schema(
     collectionReportImage: { type: String },
     top5SalesImage: { type: String },
     top5CollectionImage: { type: String },
-    // Sales zone commitments
+    nichoImage: { type: String },
+    // Sales zone commitments + reflection
     salesCommitment: { type: String, default: "" },
     collectionCommitment: { type: String, default: "" },
+    queVasAHacer: { type: String, default: "" },
     // Department photos (max 3)
     photos: [{ type: String }],
     // Common

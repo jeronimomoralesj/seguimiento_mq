@@ -7,6 +7,7 @@ import type { Area, Report, ReportPeriodType } from "@/types";
 import { X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
 interface PeriodOption { period: string; periodLabel: string; count: number; }
+interface TimerConfig { startTime: string; durationMinutes: number; }
 
 function compromisoFontSize(html: string): string {
   const len = html.replace(/<[^>]*>/g, "").trim().length;
@@ -15,6 +16,23 @@ function compromisoFontSize(html: string): string {
   if (len < 220) return "text-sm leading-relaxed";
   if (len < 380) return "text-xs leading-relaxed";
   return "text-[10px] leading-relaxed";
+}
+
+function formatTime(totalSecs: number): string {
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = totalSecs % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function getTimerColor(idx: number, total: number, elapsed: number, totalSecs: number): string {
+  if (totalSecs === 0 || elapsed <= 0) return "text-white/70";
+  const timePerSlide = totalSecs / total;
+  const slidesBehind = elapsed / timePerSlide - idx;
+  if (slidesBehind <= 0) return "text-green-400";
+  if (slidesBehind <= 1) return "text-yellow-400";
+  return "text-red-400";
 }
 
 type SlideItem =
@@ -29,6 +47,85 @@ function areaLabel(area: Area) {
   if (area.type === "sales_zone") return "Zona de Ventas";
   if (area.type === "linea") return "Línea";
   return "Departamento";
+}
+
+// ─── Timer modal ──────────────────────────────────────────────────────────────
+const DURATIONS = [
+  { value: 30, label: "30 min" },
+  { value: 45, label: "45 min" },
+  { value: 60, label: "1 hora" },
+  { value: 90, label: "1:30 h" },
+  { value: 120, label: "2 horas" },
+];
+
+function TimerModal({ onStart, onSkip }: { onStart: (c: TimerConfig) => void; onSkip: () => void }) {
+  const [startTime, setStartTime] = useState("08:00");
+  const [duration, setDuration] = useState(60);
+
+  return (
+    <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#181818] border border-white/10 rounded-2xl p-8 w-full max-w-[400px] text-white shadow-2xl">
+        <div className="mb-7 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#F5A623]/10 border border-[#F5A623]/20 flex items-center justify-center mx-auto mb-4">
+            <Image src="/logo.jpeg" alt="Merquellantas" width={32} height={32} className="object-contain" />
+          </div>
+          <h2 className="text-xl font-bold mb-1">Modo Presentación</h2>
+          <p className="text-white/40 text-sm">Configura el temporizador de la sesión</p>
+        </div>
+
+        <div className="space-y-5 mb-7">
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2.5 block">
+              Hora de inicio
+            </label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#F5A623] focus:border-transparent transition"
+            />
+          </div>
+
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2.5 block">
+              Duración de la reunión
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {DURATIONS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setDuration(value)}
+                  className={`py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    duration === value
+                      ? "bg-[#F5A623] text-white"
+                      : "bg-white/5 text-white/60 hover:bg-white/10 border border-white/5"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => onStart({ startTime, durationMinutes: duration })}
+            className="w-full bg-[#F5A623] text-white font-bold py-3.5 rounded-xl hover:bg-amber-500 transition-colors text-sm"
+          >
+            Comenzar Presentación
+          </button>
+          <button
+            onClick={onSkip}
+            className="w-full bg-white/5 text-white/40 text-sm py-2.5 rounded-xl hover:bg-white/8 transition-colors"
+          >
+            Continuar sin temporizador
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── Cover slide ──────────────────────────────────────────────────────────────
@@ -264,19 +361,20 @@ function SalesMainSlide({ area, report, onImageClick }: {
   );
 }
 
-// ─── Slide 2 per sales zone: Top 5 ───────────────────────────────────────────
+// ─── Slide 2 per sales zone: Top 5 + Nicho ───────────────────────────────────
 function SalesTop5Slide({ area, report, onImageClick }: {
   area: Area; report: Report; onImageClick: (s: string) => void;
 }) {
   return (
     <div className="absolute inset-0 flex flex-col px-6 pt-4 pb-3 gap-3">
-      <SlideHeader area={area} report={report} sub="Top 5" badge="2/2" />
+      <SlideHeader area={area} report={report} sub="Top 5 & Composición" badge="2/2" />
 
       <div className="flex-1 min-h-0 flex gap-4">
         <LeftPanel area={area} report={report} />
-        <div className="flex-1 min-w-0 flex gap-4">
-          <ImgCell label="Top 5 Ventas"   src={report.top5SalesImage}       onImageClick={onImageClick} />
-          <ImgCell label="Top 5 Recaudo"  src={report.top5CollectionImage}  onImageClick={onImageClick} />
+        <div className="flex-1 min-w-0 flex gap-3">
+          <ImgCell label="Top 5 Ventas"                  src={report.top5SalesImage}      onImageClick={onImageClick} />
+          <ImgCell label="Top 5 Recaudo"                 src={report.top5CollectionImage} onImageClick={onImageClick} />
+          <ImgCell label="Composición por Nicho"         src={report.nichoImage}          onImageClick={onImageClick} />
         </div>
       </div>
     </div>
@@ -345,6 +443,18 @@ function LeftPanel({ area, report }: { area: Area; report: Report }) {
             </span>
           </div>
         </div>
+        {report.queVasAHacer && area.type === "sales_zone" && (
+          <>
+            <div className="w-full h-px bg-white/10 shrink-0" />
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">
+                ¿Qué haré diferente?
+              </p>
+              <div className="rich-text-dark text-white/75 text-xs leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: report.queVasAHacer }} />
+            </div>
+          </>
+        )}
         {report.notes && (
           <>
             <div className="w-full h-px bg-white/10 shrink-0" />
@@ -373,6 +483,12 @@ export default function PresentationPage() {
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
+  // Timer state
+  const [showTimerModal, setShowTimerModal] = useState(true);
+  const [timerConfig, setTimerConfig] = useState<TimerConfig | null>(null);
+  const [remaining, setRemaining] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+
   useEffect(() => {
     fetch(`/api/periods?reportType=${reportType}`).then((r) => r.json()).then((data) => {
       const ps: PeriodOption[] = data.periods || [];
@@ -394,6 +510,27 @@ export default function PresentationPage() {
       })
       .finally(() => setLoading(false));
   }, [selectedPeriod, reportType]);
+
+  // Countdown tick
+  useEffect(() => {
+    if (!timerConfig) return;
+    const [h, m] = timerConfig.startTime.split(":").map(Number);
+    const start = new Date();
+    start.setHours(h, m, 0, 0);
+    const totalMs = timerConfig.durationMinutes * 60000;
+
+    const tick = () => {
+      const now = Date.now();
+      const elapsedMs = Math.max(0, now - start.getTime());
+      const elapsedClamped = Math.min(elapsedMs, totalMs);
+      setElapsed(Math.floor(elapsedClamped / 1000));
+      setRemaining(Math.max(0, Math.floor((totalMs - elapsedClamped) / 1000)));
+    };
+
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [timerConfig]);
 
   // Build flat slide list: Líderes de Zona → Líneas → Admon Nacional y Flotas → Departamentos
   const TYPE_ORDER: Record<string, number> = { sales_zone: 0, linea: 1, department: 2 };
@@ -422,137 +559,171 @@ export default function PresentationPage() {
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if (lightbox) { if (e.key === "Escape") setLightbox(null); return; }
+      if (showTimerModal) return;
       if (e.key === "ArrowRight" || e.key === "ArrowDown") goNext();
       if (e.key === "ArrowLeft" || e.key === "ArrowUp") goPrev();
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [goNext, goPrev, lightbox]);
+  }, [goNext, goPrev, lightbox, showTimerModal]);
 
   const periodLabel = periods.find((p) => p.period === selectedPeriod)?.periodLabel ?? selectedPeriod;
   const currentSlide = idx > 0 ? slideItems[idx - 1] : null;
 
-  return (
-    <div className="bg-[#0f0f0f] select-none overflow-hidden text-white"
-      style={{ display: "grid", gridTemplateRows: "52px 22px 1fr 52px", height: "100dvh" }}>
+  const totalSecs = timerConfig ? timerConfig.durationMinutes * 60 : 0;
+  const timerColorClass = timerConfig ? getTimerColor(idx, total, elapsed, totalSecs) : "";
 
-      {/* ── Row 1: Top bar ── */}
-      <div className="flex items-center justify-between px-5 bg-black/60 border-b border-white/5">
-        <Link href="/" className="flex items-center gap-1.5 text-white/40 hover:text-white transition-colors text-sm">
-          <X size={14} /> Salir
-        </Link>
-        <Image src="/logo.jpeg" alt="Merquellantas" width={110} height={28} className="object-contain brightness-0 invert" />
-        <div className="flex items-center gap-2">
-          <div className="flex bg-white/10 rounded-lg p-0.5">
-            {(["weekly", "monthly"] as ReportPeriodType[]).map((t) => (
-              <button key={t} onClick={() => setReportType(t)}
-                className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${t === reportType ? "bg-[#F5A623] text-white" : "text-white/40 hover:text-white/70"}`}>
-                {t === "weekly" ? "Semanal" : "Mensual"}
-              </button>
-            ))}
+  return (
+    <>
+      {/* Timer modal */}
+      {showTimerModal && (
+        <TimerModal
+          onStart={(cfg) => { setTimerConfig(cfg); setShowTimerModal(false); }}
+          onSkip={() => setShowTimerModal(false)}
+        />
+      )}
+
+      <div className="bg-[#0f0f0f] select-none overflow-hidden text-white"
+        style={{ display: "grid", gridTemplateRows: "60px 22px 1fr 52px", height: "100dvh" }}>
+
+        {/* ── Row 1: Top bar ── */}
+        <div className="relative flex items-center justify-between px-5 bg-black/60 border-b border-white/5">
+          {/* Left: Salir + Logo */}
+          <div className="flex items-center gap-3 z-10">
+            <Link href="/" className="flex items-center gap-1.5 text-white/40 hover:text-white transition-colors text-sm">
+              <X size={14} /> Salir
+            </Link>
+            <div className="w-px h-5 bg-white/10" />
+            <Image src="/logo.jpeg" alt="Merquellantas" width={90} height={23} className="object-contain brightness-0 invert opacity-50" />
           </div>
-          {periods.length > 0 && (
-            <div className="relative">
-              <button onClick={() => setPeriodOpen((o) => !o)}
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-lg min-w-[140px] justify-between transition-colors">
-                <span className="truncate">{periodLabel}</span>
-                <ChevronDown size={12} className={`shrink-0 transition-transform ${periodOpen ? "rotate-180" : ""}`} />
-              </button>
-              {periodOpen && (
-                <div className="absolute right-0 top-full mt-1 bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl z-50 min-w-[170px] overflow-hidden">
-                  {periods.map((p) => (
-                    <button key={p.period} onClick={() => { setSelectedPeriod(p.period); setPeriodOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${p.period === selectedPeriod ? "bg-[#F5A623] text-white font-semibold" : "text-white/60 hover:bg-white/10"}`}>
-                      <span className="block">{p.periodLabel}</span>
-                      <span className={`text-[10px] ${p.period === selectedPeriod ? "text-white/70" : "text-white/30"}`}>{p.count} áreas</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+
+          {/* Center: Countdown timer (absolutely centered) */}
+          {timerConfig && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className={`flex flex-col items-center ${timerColorClass}`}>
+                <span className="text-3xl font-mono font-bold leading-none tracking-tight">
+                  {formatTime(remaining)}
+                </span>
+                <span className="text-[9px] uppercase tracking-widest opacity-60 mt-0.5">
+                  {remaining === 0 ? "tiempo agotado" : "restante"}
+                </span>
+              </div>
             </div>
           )}
-        </div>
-      </div>
 
-      {/* ── Row 2: Slide dots ── */}
-      <div className="flex items-center justify-center gap-1">
-        {!loading && total > 1 && (
-          <>
-            <button onClick={() => setIdx(0)} title="Portada"
-              className={`rounded-full transition-all ${idx === 0 ? "w-5 h-1.5 bg-[#F5A623]" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"}`}
-            />
-            {slideItems.map((s, i) => (
-              <button key={i} onClick={() => setIdx(i + 1)} title={s.area.name}
-                className={`rounded-full transition-all ${
-                  idx === i + 1
-                    ? "w-4 h-1.5 bg-[#F5A623]"
-                    : s.kind === "sales-top5"
-                    ? "w-1 h-1 bg-white/15 hover:bg-white/30"
-                    : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
-                }`}
+          {/* Right: Controls */}
+          <div className="flex items-center gap-2 z-10">
+            <div className="flex bg-white/10 rounded-lg p-0.5">
+              {(["weekly", "monthly"] as ReportPeriodType[]).map((t) => (
+                <button key={t} onClick={() => setReportType(t)}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${t === reportType ? "bg-[#F5A623] text-white" : "text-white/40 hover:text-white/70"}`}>
+                  {t === "weekly" ? "Semanal" : "Mensual"}
+                </button>
+              ))}
+            </div>
+            {periods.length > 0 && (
+              <div className="relative">
+                <button onClick={() => setPeriodOpen((o) => !o)}
+                  className="flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-lg min-w-[140px] justify-between transition-colors">
+                  <span className="truncate">{periodLabel}</span>
+                  <ChevronDown size={12} className={`shrink-0 transition-transform ${periodOpen ? "rotate-180" : ""}`} />
+                </button>
+                {periodOpen && (
+                  <div className="absolute right-0 top-full mt-1 bg-[#1c1c1c] border border-white/10 rounded-xl shadow-2xl z-50 min-w-[170px] overflow-hidden">
+                    {periods.map((p) => (
+                      <button key={p.period} onClick={() => { setSelectedPeriod(p.period); setPeriodOpen(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${p.period === selectedPeriod ? "bg-[#F5A623] text-white font-semibold" : "text-white/60 hover:bg-white/10"}`}>
+                        <span className="block">{p.periodLabel}</span>
+                        <span className={`text-[10px] ${p.period === selectedPeriod ? "text-white/70" : "text-white/30"}`}>{p.count} áreas</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Row 2: Slide dots ── */}
+        <div className="flex items-center justify-center gap-1">
+          {!loading && total > 1 && (
+            <>
+              <button onClick={() => setIdx(0)} title="Portada"
+                className={`rounded-full transition-all ${idx === 0 ? "w-5 h-1.5 bg-[#F5A623]" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"}`}
               />
-            ))}
-            <button onClick={() => setIdx(total - 1)} title="Cierre"
-              className={`rounded-full transition-all ${idx === total - 1 ? "w-5 h-1.5 bg-[#F5A623]" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"}`}
-            />
-          </>
-        )}
-      </div>
-
-      {/* ── Row 3: Slide area ── */}
-      <div className="overflow-hidden relative">
-        {loading ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="w-10 h-10 border-4 border-[#F5A623] border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : periods.length === 0 ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-white/30 gap-4">
-            <span className="text-5xl">📋</span>
-            <p>No hay reportes cargados aún.</p>
-            <Link href="/" className="text-[#F5A623] hover:underline text-sm">Ir a subir reportes →</Link>
-          </div>
-        ) : idx === 0 ? (
-          <CoverSlide reportType={reportType} periodLabel={periodLabel} totalAreas={uniqueAreaCount} />
-        ) : currentSlide?.kind === "sales-main" ? (
-          <SalesMainSlide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
-        ) : currentSlide?.kind === "sales-top5" ? (
-          <SalesTop5Slide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
-        ) : currentSlide ? (
-          <DeptSlide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
-        ) : idx === total - 1 ? (
-          <ClosingSlide />
-        ) : null}
-      </div>
-
-      {/* ── Row 4: Nav bar ── */}
-      <div className="flex items-center justify-between px-6 border-t border-white/5 bg-black/30">
-        <button onClick={goPrev} disabled={idx === 0}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white/10 disabled:opacity-20 hover:bg-white/20 transition-colors text-xs font-semibold">
-          <ChevronLeft size={14} /> Anterior
-        </button>
-        <div className="flex items-center gap-4">
-          <span className="text-white/20 text-xs">{idx + 1} / {total} &nbsp;·&nbsp; ← → navegar</span>
-          <Image src="/logo.jpeg" alt="" width={65} height={16} className="object-contain brightness-0 invert opacity-15" />
+              {slideItems.map((s, i) => (
+                <button key={i} onClick={() => setIdx(i + 1)} title={s.area.name}
+                  className={`rounded-full transition-all ${
+                    idx === i + 1
+                      ? "w-4 h-1.5 bg-[#F5A623]"
+                      : s.kind === "sales-top5"
+                      ? "w-1 h-1 bg-white/15 hover:bg-white/30"
+                      : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
+                  }`}
+                />
+              ))}
+              <button onClick={() => setIdx(total - 1)} title="Cierre"
+                className={`rounded-full transition-all ${idx === total - 1 ? "w-5 h-1.5 bg-[#F5A623]" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"}`}
+              />
+            </>
+          )}
         </div>
-        <button onClick={goNext} disabled={idx === total - 1}
-          className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white/10 disabled:opacity-20 hover:bg-white/20 transition-colors text-xs font-semibold">
-          Siguiente <ChevronRight size={14} />
-        </button>
-      </div>
 
-      {/* Lightbox */}
-      {lightbox && (
-        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-8"
-          onClick={() => setLightbox(null)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={lightbox} alt="" className="max-w-full max-h-full object-contain rounded-2xl"
-            onClick={(e) => e.stopPropagation()} />
-          <button onClick={() => setLightbox(null)}
-            className="absolute top-5 right-5 bg-white/10 rounded-full p-2 hover:bg-white/20 transition-colors">
-            <X size={18} />
+        {/* ── Row 3: Slide area ── */}
+        <div className="overflow-hidden relative">
+          {loading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-10 h-10 border-4 border-[#F5A623] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : periods.length === 0 ? (
+            <div className="w-full h-full flex flex-col items-center justify-center text-white/30 gap-4">
+              <span className="text-5xl">📋</span>
+              <p>No hay reportes cargados aún.</p>
+              <Link href="/" className="text-[#F5A623] hover:underline text-sm">Ir a subir reportes →</Link>
+            </div>
+          ) : idx === 0 ? (
+            <CoverSlide reportType={reportType} periodLabel={periodLabel} totalAreas={uniqueAreaCount} />
+          ) : currentSlide?.kind === "sales-main" ? (
+            <SalesMainSlide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
+          ) : currentSlide?.kind === "sales-top5" ? (
+            <SalesTop5Slide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
+          ) : currentSlide ? (
+            <DeptSlide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
+          ) : idx === total - 1 ? (
+            <ClosingSlide />
+          ) : null}
+        </div>
+
+        {/* ── Row 4: Nav bar ── */}
+        <div className="flex items-center justify-between px-6 border-t border-white/5 bg-black/30">
+          <button onClick={goPrev} disabled={idx === 0}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white/10 disabled:opacity-20 hover:bg-white/20 transition-colors text-xs font-semibold">
+            <ChevronLeft size={14} /> Anterior
+          </button>
+          <div className="flex items-center gap-4">
+            <span className="text-white/20 text-xs">{idx + 1} / {total} &nbsp;·&nbsp; ← → navegar</span>
+            <Image src="/logo.jpeg" alt="" width={65} height={16} className="object-contain brightness-0 invert opacity-15" />
+          </div>
+          <button onClick={goNext} disabled={idx === total - 1}
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white/10 disabled:opacity-20 hover:bg-white/20 transition-colors text-xs font-semibold">
+            Siguiente <ChevronRight size={14} />
           </button>
         </div>
-      )}
-    </div>
+
+        {/* Lightbox */}
+        {lightbox && (
+          <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-8"
+            onClick={() => setLightbox(null)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={lightbox} alt="" className="max-w-full max-h-full object-contain rounded-2xl"
+              onClick={(e) => e.stopPropagation()} />
+            <button onClick={() => setLightbox(null)}
+              className="absolute top-5 right-5 bg-white/10 rounded-full p-2 hover:bg-white/20 transition-colors">
+              <X size={18} />
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

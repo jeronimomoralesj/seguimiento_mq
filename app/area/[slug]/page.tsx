@@ -221,7 +221,14 @@ function ReportDetail({ report, slug, isEditable }: { report: Report; slug: stri
           ) : <div />}
           <ImgCard title="Top 5 Ventas" src={report.top5SalesImage} />
           <ImgCard title="Top 5 Recaudo" src={report.top5CollectionImage} />
+          {report.nichoImage && <ImgCard title="Composición de ventas por nicho" src={report.nichoImage} />}
         </div>
+        {report.queVasAHacer && (
+          <div className="bg-white rounded-2xl border border-zinc-100 p-5 mt-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">¿Qué harás diferente esta semana?</p>
+            <div className="rich-text text-zinc-700 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: report.queVasAHacer }} />
+          </div>
+        )}
         {report.notes && (
           <div className="bg-white rounded-2xl border border-zinc-100 p-5 mt-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Comentarios</p>

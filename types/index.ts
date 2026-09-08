@@ -22,8 +22,10 @@ export interface Report {
   collectionReportImage?: string;
   top5SalesImage?: string;
   top5CollectionImage?: string;
+  nichoImage?: string;
   salesCommitment?: string;
   collectionCommitment?: string;
+  queVasAHacer?: string;
   // Department / linea fields
   photos?: string[];
   // Common

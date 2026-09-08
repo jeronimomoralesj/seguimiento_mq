@@ -78,6 +78,8 @@ export default function UploadPage() {
   const [top5Collection, setTop5Collection] = useState<string | undefined>();
   const [salesCommitment, setSalesCommitment] = useState("");
   const [collectionCommitment, setCollectionCommitment] = useState("");
+  const [nichoImage, setNichoImage] = useState<string | undefined>();
+  const [queVasAHacer, setQueVasAHacer] = useState("");
   const [photos, setPhotos] = useState<(string | undefined)[]>([undefined, undefined, undefined]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -94,6 +96,7 @@ export default function UploadPage() {
     setNotes(""); setSalesImg(undefined); setCollectionImg(undefined);
     setTop5Sales(undefined); setTop5Collection(undefined);
     setSalesCommitment(""); setCollectionCommitment("");
+    setNichoImage(undefined); setQueVasAHacer("");
     setPhotos([undefined, undefined, undefined]);
 
     fetch(`/api/reports?area=${slug}&reportType=${reportType}&period=${periodInfo.period}`)
@@ -108,8 +111,10 @@ export default function UploadPage() {
             setCollectionImg(ex.collectionReportImage);
             setTop5Sales(ex.top5SalesImage);
             setTop5Collection(ex.top5CollectionImage);
+            setNichoImage(ex.nichoImage);
             setSalesCommitment(ex.salesCommitment || "");
             setCollectionCommitment(ex.collectionCommitment || "");
+            setQueVasAHacer(ex.queVasAHacer || "");
           } else {
             const p = ex.photos || [];
             setPhotos([p[0], p[1], p[2]]);
@@ -140,8 +145,10 @@ export default function UploadPage() {
         collectionReportImage: collectionImg,
         top5SalesImage: top5Sales,
         top5CollectionImage: top5Collection,
+        nichoImage,
         salesCommitment,
         collectionCommitment,
+        queVasAHacer,
       });
     } else {
       payload.photos = photos.filter(Boolean);
@@ -266,10 +273,11 @@ export default function UploadPage() {
                   </div>
                 </div>
 
-                {/* Top 5 row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Top 5 + Nicho row */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <ImageUploadBox label="Top 5 Ventas" value={top5Sales} onChange={setTop5Sales} />
                   <ImageUploadBox label="Top 5 Recaudo" value={top5Collection} onChange={setTop5Collection} />
+                  <ImageUploadBox label="Composición de ventas por nicho" value={nichoImage} onChange={setNichoImage} />
                 </div>
               </div>
             ) : (
@@ -281,6 +289,20 @@ export default function UploadPage() {
                       onChange={(v) => setPhotos((p) => { const n = [...p]; n[i] = v; return n; })} />
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* ¿Qué vas a hacer diferente? (sales zones only) */}
+            {area.type === "sales_zone" && (
+              <div className="bg-white rounded-2xl border border-zinc-100 p-5">
+                <p className="text-sm font-bold text-zinc-800 mb-3">¿Qué vas a hacer diferente esta semana?</p>
+                <RichTextEditor
+                  key={`queva-${reportType}-${fetching}`}
+                  value={queVasAHacer}
+                  onChange={setQueVasAHacer}
+                  placeholder="Describe qué harás diferente esta semana para mejorar resultados..."
+                  rows={4}
+                />
               </div>
             )}
 

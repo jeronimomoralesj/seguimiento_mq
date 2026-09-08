@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // Check max photo size (5MB each, base64 is ~1.37x original)
     const MAX_B64 = 7 * 1024 * 1024;
-    for (const field of ["salesReportImage", "collectionReportImage", "top5SalesImage", "top5CollectionImage"]) {
+    for (const field of ["salesReportImage", "collectionReportImage", "top5SalesImage", "top5CollectionImage", "nichoImage"]) {
       if (body[field] && body[field].length > MAX_B64) {
         return NextResponse.json({ error: `La imagen "${field}" supera el tamaño máximo` }, { status: 400 });
       }
@@ -67,8 +67,10 @@ export async function POST(req: NextRequest) {
       doc.collectionReportImage = body.collectionReportImage;
       doc.top5SalesImage = body.top5SalesImage;
       doc.top5CollectionImage = body.top5CollectionImage;
+      doc.nichoImage = body.nichoImage;
       doc.salesCommitment = body.salesCommitment || "";
       doc.collectionCommitment = body.collectionCommitment || "";
+      doc.queVasAHacer = body.queVasAHacer || "";
     } else {
       doc.photos = (body.photos || []).filter(Boolean).slice(0, 3);
     }
