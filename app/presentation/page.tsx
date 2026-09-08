@@ -74,7 +74,72 @@ function CoverSlide({ reportType, periodLabel, totalAreas }: {
 }
 
 // ─── Closing slide ────────────────────────────────────────────────────────────
+const QUOTES: { text: string; highlights: string[] }[] = [
+  {
+    text: "Los grandes equipos se construyen sobre el esfuerzo, la disciplina y la confianza.",
+    highlights: ["esfuerzo", "disciplina", "confianza"],
+  },
+  {
+    text: "La disciplina es el puente entre las metas y los logros.",
+    highlights: ["disciplina", "metas", "logros"],
+  },
+  {
+    text: "Las ventas son el resultado de equipos que trabajan con propósito, pasión y persistencia.",
+    highlights: ["propósito", "pasión", "persistencia"],
+  },
+  {
+    text: "Un equipo alineado no solo alcanza sus metas, las supera.",
+    highlights: ["alineado", "supera"],
+  },
+  {
+    text: "El talento gana partidos, pero el trabajo en equipo y la inteligencia ganan campeonatos.",
+    highlights: ["trabajo en equipo", "inteligencia", "campeonatos"],
+  },
+  {
+    text: "La excelencia no es una habilidad. Es una actitud que se construye cada día.",
+    highlights: ["excelencia", "actitud"],
+  },
+  {
+    text: "No cuentes los días. Haz que los días cuenten.",
+    highlights: ["cuenten"],
+  },
+  {
+    text: "Cada cliente ganado es el reflejo de un equipo que nunca dejó de creer.",
+    highlights: ["nunca dejó de creer"],
+  },
+  {
+    text: "El éxito no es llegar primero. Es hacer que todos lleguen juntos.",
+    highlights: ["éxito", "juntos"],
+  },
+  {
+    text: "Los campeones se forjan en el trabajo silencioso que nadie ve, pero todos celebran.",
+    highlights: ["trabajo silencioso", "celebran"],
+  },
+  {
+    text: "Una visión sin ejecución es solo un sueño. Una ejecución sin visión es solo rutina. Juntas, cambian el mundo.",
+    highlights: ["visión", "ejecución"],
+  },
+  {
+    text: "El precio del éxito es la dedicación, el trabajo duro y un compromiso inquebrantable con la excelencia.",
+    highlights: ["dedicación", "trabajo duro", "excelencia"],
+  },
+];
+
+function renderQuote(text: string, highlights: string[]) {
+  const escaped = highlights.map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+  return text.split(pattern).map((part, i) =>
+    highlights.some((h) => h.toLowerCase() === part.toLowerCase())
+      ? <span key={i} className="text-[#F5A623]">{part}</span>
+      : <span key={i}>{part}</span>
+  );
+}
+
 function ClosingSlide() {
+  const [quoteIdx, setQuoteIdx] = useState(0);
+  useEffect(() => { setQuoteIdx(Math.floor(Math.random() * QUOTES.length)); }, []);
+  const { text, highlights } = QUOTES[quoteIdx];
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center px-12 relative overflow-hidden">
       <div className="absolute -top-60 -left-60 w-[600px] h-[600px] rounded-full bg-[#F5A623]/5 pointer-events-none" />
@@ -85,10 +150,7 @@ function ClosingSlide() {
         </div>
         <div className="w-16 h-1 bg-[#F5A623] rounded-full mb-10" />
         <blockquote className="text-5xl font-bold text-white leading-tight tracking-tight">
-          Los grandes equipos, se construyen sobre el{" "}
-          <span className="text-[#F5A623]">esfuerzo</span>,{" "}
-          la <span className="text-[#F5A623]">disciplina</span>{" "}
-          y la <span className="text-[#F5A623]">confianza</span>.
+          {renderQuote(text, highlights)}
         </blockquote>
       </div>
     </div>

@@ -50,13 +50,13 @@ export const AREAS: Area[] = [
   { slug: "pcr",            name: "PCR",             type: "linea", color: "#C07016" },
   { slug: "lubricantes",    name: "Lubricantes",     type: "linea", color: "#AB5E12" },
   // Departments
-  { slug: "supply-chain",             name: "Supply Chain",             type: "department", color: "#2D2D2D" },
-  { slug: "mercadeo",                 name: "Mercadeo",                 type: "department", color: "#3D3D3D" },
-  { slug: "recaudo",                  name: "Recaudo",                  type: "department", color: "#4D4D4D" },
-  { slug: "sistemas",                 name: "Sistemas",                 type: "department", color: "#5D5D5D" },
-  { slug: "departamento-de-la-gente", name: "Departamento de la Gente", type: "department", color: "#6D6D6D" },
-  { slug: "cartera",                  name: "Cartera",                  type: "department", color: "#964B0E" },
-  { slug: "tesoreria",               name: "Tesorería",                type: "department", color: "#7A5C3A" },
+  { slug: "mercadeo",                 name: "Mercadeo",                 type: "department", color: "#2D2D2D" },
+  { slug: "cartera",                  name: "Cartera",                  type: "department", color: "#3D3D3D" },
+  { slug: "tesoreria",                name: "Tesorería",                type: "department", color: "#4D4D4D" },
+  { slug: "supply-chain",             name: "Supply Chain",             type: "department", color: "#5D5D5D" },
+  { slug: "sistemas",                 name: "Sistemas",                 type: "department", color: "#6D6D6D" },
+  { slug: "departamento-de-la-gente", name: "Departamento de la Gente", type: "department", color: "#7A7A7A" },
+  { slug: "recaudo",                  name: "Recaudo",                  type: "department", color: "#964B0E" },
 ];
 
 export function getArea(slug: string): Area | undefined {
