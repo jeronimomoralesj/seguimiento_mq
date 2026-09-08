@@ -73,6 +73,28 @@ function CoverSlide({ reportType, periodLabel, totalAreas }: {
   );
 }
 
+// ─── Closing slide ────────────────────────────────────────────────────────────
+function ClosingSlide() {
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center px-12 relative overflow-hidden">
+      <div className="absolute -top-60 -left-60 w-[600px] h-[600px] rounded-full bg-[#F5A623]/5 pointer-events-none" />
+      <div className="absolute -bottom-60 -right-60 w-[600px] h-[600px] rounded-full bg-[#F5A623]/5 pointer-events-none" />
+      <div className="relative z-10 flex flex-col items-center text-center max-w-4xl">
+        <div className="bg-white rounded-3xl px-10 py-4 shadow-2xl shadow-black/50 mb-10">
+          <Image src="/logo.jpeg" alt="Merquellantas" width={220} height={56} className="object-contain" />
+        </div>
+        <div className="w-16 h-1 bg-[#F5A623] rounded-full mb-10" />
+        <blockquote className="text-5xl font-bold text-white leading-tight tracking-tight">
+          Los grandes equipos, se construyen sobre el{" "}
+          <span className="text-[#F5A623]">esfuerzo</span>,{" "}
+          la <span className="text-[#F5A623]">disciplina</span>{" "}
+          y la <span className="text-[#F5A623]">confianza</span>.
+        </blockquote>
+      </div>
+    </div>
+  );
+}
+
 // ─── Shared slide header ──────────────────────────────────────────────────────
 function SlideHeader({ area, report, sub, badge }: {
   area: Area; report: Report; sub: string; badge?: string;
@@ -328,7 +350,7 @@ export default function PresentationPage() {
   }, []);
 
   const uniqueAreaCount = AREAS.filter((a) => reports[a.slug]).length;
-  const total = 1 + slideItems.length;
+  const total = 1 + slideItems.length + 1; // cover + areas + closing
 
   const goNext = useCallback(() => setIdx((i) => Math.min(i + 1, total - 1)), [total]);
   const goPrev = useCallback(() => setIdx((i) => Math.max(i - 1, 0)), []);
@@ -406,6 +428,9 @@ export default function PresentationPage() {
                 }`}
               />
             ))}
+            <button onClick={() => setIdx(total - 1)} title="Cierre"
+              className={`rounded-full transition-all ${idx === total - 1 ? "w-5 h-1.5 bg-[#F5A623]" : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"}`}
+            />
           </>
         )}
       </div>
@@ -430,6 +455,8 @@ export default function PresentationPage() {
           <SalesTop5Slide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
         ) : currentSlide ? (
           <DeptSlide area={currentSlide.area} report={currentSlide.report} onImageClick={setLightbox} />
+        ) : idx === total - 1 ? (
+          <ClosingSlide />
         ) : null}
       </div>
 
