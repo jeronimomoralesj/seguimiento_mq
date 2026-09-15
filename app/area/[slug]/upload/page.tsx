@@ -277,7 +277,7 @@ export default function UploadPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <ImageUploadBox label="Top 5 Ventas" value={top5Sales} onChange={setTop5Sales} />
                   <ImageUploadBox label="Top 5 Recaudo" value={top5Collection} onChange={setTop5Collection} />
-                  <ImageUploadBox label="Composición de ventas por nicho" value={nichoImage} onChange={setNichoImage} />
+                  <ImageUploadBox label="Composición de ventas por lista (flotas, distribucion, uno a uno y debe salir con números de clientes) " value={nichoImage} onChange={setNichoImage} />
                 </div>
               </div>
             ) : (
