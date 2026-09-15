@@ -532,11 +532,11 @@ export default function PresentationPage() {
     return () => clearInterval(id);
   }, [timerConfig]);
 
-  // Build flat slide list: Líderes de Zona → Líneas → Admon Nacional y Flotas → Departamentos
-  const TYPE_ORDER: Record<string, number> = { sales_zone: 0, linea: 1, department: 2 };
-  const slideOrder = (a: Area) =>
-    a.slug === "admon-nacional-flotas" ? 1.5 : TYPE_ORDER[a.type] ?? 3;
-  const sortedAreas = [...AREAS].sort((a, b) => slideOrder(a) - slideOrder(b));
+  // Build flat slide list: Zonas de Venta → Líneas → Departamentos
+    const TYPE_ORDER: Record<string, number> = { sales_zone: 0, linea: 1, department: 2 };
+    const sortedAreas = [...AREAS].sort(
+      (a, b) => (TYPE_ORDER[a.type] ?? 3) - (TYPE_ORDER[b.type] ?? 3)
+    );
 
   const slideItems: SlideItem[] = sortedAreas.reduce<SlideItem[]>((acc, a) => {
     if (!reports[a.slug]) return acc;
