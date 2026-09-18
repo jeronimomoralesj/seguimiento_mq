@@ -14,8 +14,8 @@ export interface Report {
   area: string;
   areaType: AreaType;
   reportType: ReportPeriodType;
-  period: string; // "2026-09-W2" or "2026-01"
-  periodLabel: string; // "Semana 2, Sep 2026" or "Enero 2026"
+  period: string;
+  periodLabel: string;
   date: string;
   // Sales zone fields
   salesReportImage?: string;
@@ -26,6 +26,9 @@ export interface Report {
   salesCommitment?: string;
   collectionCommitment?: string;
   queVasAHacer?: string;
+  // General-only fields
+  top5BestSellersImage?: string;
+  top5OverdueCollectionImage?: string;
   // Department / linea fields
   photos?: string[];
   // Common

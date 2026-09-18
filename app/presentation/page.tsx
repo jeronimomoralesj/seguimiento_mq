@@ -361,20 +361,34 @@ function SalesMainSlide({ area, report, onImageClick }: {
   );
 }
 
-// ─── Slide 2 per sales zone: Top 5 + Nicho ───────────────────────────────────
+// ─── Slide 2 per sales zone: Top 5 + Nicho (+ general extras) ────────────────
 function SalesTop5Slide({ area, report, onImageClick }: {
   area: Area; report: Report; onImageClick: (s: string) => void;
 }) {
+  const isGeneral = area.slug === "general";
+
+  const cells = isGeneral
+    ? [
+        { label: "Composición por Nicho",   src: report.nichoImage },
+        { label: "Top 5 Mejores Vendedores", src: report.top5BestSellersImage },
+        { label: "Top 5 Recaudo Vencido",    src: report.top5OverdueCollectionImage },
+      ]
+    : [
+        { label: "Composición por Nicho", src: report.nichoImage },
+      ];
+
+  const sub = isGeneral ? "Top 5, Composición & Recaudo" : "Top 5 & Composición";
+
   return (
     <div className="absolute inset-0 flex flex-col px-6 pt-4 pb-3 gap-3">
-      <SlideHeader area={area} report={report} sub="Top 5 & Composición" badge="2/2" />
+      <SlideHeader area={area} report={report} sub={sub} badge="2/2" />
 
       <div className="flex-1 min-h-0 flex gap-4">
         <LeftPanel area={area} report={report} />
-        <div className="flex-1 min-w-0 flex gap-3">
-          <ImgCell label="Top 5 Ventas"                  src={report.top5SalesImage}      onImageClick={onImageClick} />
-          <ImgCell label="Top 5 Recaudo"                 src={report.top5CollectionImage} onImageClick={onImageClick} />
-          <ImgCell label="Composición por Nicho"         src={report.nichoImage}          onImageClick={onImageClick} />
+        <div className={`flex-1 min-w-0 grid gap-3 ${isGeneral ? "grid-cols-3" : "grid-cols-1"}`}>
+          {cells.map((c, i) => (
+            <ImgCell key={i} label={c.label} src={c.src} onImageClick={onImageClick} />
+          ))}
         </div>
       </div>
     </div>
@@ -711,18 +725,30 @@ export default function PresentationPage() {
         </div>
 
         {/* Lightbox */}
-        {lightbox && (
-          <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-8"
-            onClick={() => setLightbox(null)}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={lightbox} alt="" className="max-w-full max-h-full object-contain rounded-2xl"
-              onClick={(e) => e.stopPropagation()} />
-            <button onClick={() => setLightbox(null)}
-              className="absolute top-5 right-5 bg-white/10 rounded-full p-2 hover:bg-white/20 transition-colors">
-              <X size={18} />
-            </button>
-          </div>
-        )}
+          {lightbox && (
+            <div
+              className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-8"
+              onClick={() => setLightbox(null)}
+            >
+              <div
+                className="bg-white rounded-2xl p-2 max-w-[95vw] max-h-[90vh] flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={lightbox}
+                  alt=""
+                  className="max-w-full max-h-[85vh] object-contain rounded-xl"
+                />
+              </div>
+              <button
+                onClick={() => setLightbox(null)}
+                className="absolute top-5 right-5 bg-white/10 rounded-full p-2 hover:bg-white/20 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
       </div>
     </>
   );
