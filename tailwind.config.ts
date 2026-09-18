@@ -18,6 +18,23 @@ const config: Config = {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
       },
+      keyframes: {
+        "pulse-alert": {
+          "0%, 100%": {
+            transform: "scale(1)",
+            opacity: "1",
+            textShadow: "0 0 0px rgba(248,113,113,0)",
+          },
+          "50%": {
+            transform: "scale(1.5)",
+            opacity: "1",
+            textShadow: "0 0 18px rgba(248,113,113,0.9), 0 0 32px rgba(248,113,113,0.5)",
+          },
+        },
+      },
+      animation: {
+        "pulse-alert": "pulse-alert 1s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

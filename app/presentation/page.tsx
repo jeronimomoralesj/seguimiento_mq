@@ -486,6 +486,61 @@ function LeftPanel({ area, report }: { area: Area; report: Report }) {
   );
 }
 
+// Harsh klaxon-style alarm: two alternating low square-wave tones.
+function playAlertBeep() {
+  try {
+    const Ctx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new Ctx();
+    if (ctx.state === "suspended") ctx.resume();
+    const now = ctx.currentTime;
+
+    // Master gain — kept under 1.0 so we don't clip the output.
+    const master = ctx.createGain();
+    master.gain.value = 0.7;
+    master.connect(ctx.destination);
+
+    // Mild distortion to make it harsher.
+    const shaper = ctx.createWaveShaper();
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) {
+      const x = (i / 1023) * 2 - 1;
+      curve[i] = Math.tanh(x * 2.5); // soft-clip, adds harmonic bite
+    }
+    shaper.curve = curve;
+    shaper.connect(master);
+
+    // Klaxon: alternate between 550Hz and 350Hz, 4 cycles over ~1.2s.
+    const cycles = 4;
+    const cycleDur = 0.3;      // 300ms per tone
+    for (let i = 0; i < cycles; i++) {
+      const freq = i % 2 === 0 ? 550 : 350;
+      const start = now + i * cycleDur;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "square";                 // harsh
+      osc.frequency.setValueAtTime(freq, start);
+
+      // Short attack, sustained body, sharp release — like a physical alarm.
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.55, start + 0.02);
+      gain.gain.setValueAtTime(0.55, start + cycleDur - 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + cycleDur - 0.005);
+
+      osc.connect(gain).connect(shaper);
+      osc.start(start);
+      osc.stop(start + cycleDur);
+    }
+
+    // Let the tail ring out, then close.
+    setTimeout(() => ctx.close().catch(() => {}), 1600);
+  } catch {
+    /* audio not available; ignore */
+  }
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function PresentationPage() {
   const [reportType, setReportType] = useState<ReportPeriodType>("weekly");
@@ -546,6 +601,7 @@ export default function PresentationPage() {
     return () => clearInterval(id);
   }, [timerConfig]);
 
+
   // Build flat slide list: Zonas de Venta → Líneas → Departamentos
     const TYPE_ORDER: Record<string, number> = { sales_zone: 0, linea: 1, department: 2 };
     const sortedAreas = [...AREAS].sort(
@@ -566,6 +622,26 @@ export default function PresentationPage() {
 
   const uniqueAreaCount = AREAS.filter((a) => reports[a.slug]).length;
   const total = 1 + slideItems.length + 1; // cover + areas + closing
+
+  const [isRed, setIsRed] = useState(false);
+
+  useEffect(() => {
+    if (!timerConfig) {
+      setIsRed(false);
+      return;
+    }
+    const totalSecsLocal = timerConfig.durationMinutes * 60;
+    const color = getTimerColor(idx, total, elapsed, totalSecsLocal);
+    setIsRed(color === "text-red-400");
+  }, [timerConfig, idx, total, elapsed]);
+
+  useEffect(() => {
+    if (!isRed) return;
+    // Fire immediately, then every 20s.
+    playAlertBeep();
+    const id = setInterval(playAlertBeep, 10_000);
+    return () => clearInterval(id);
+  }, [isRed]);
 
   const goNext = useCallback(() => setIdx((i) => Math.min(i + 1, total - 1)), [total]);
   const goPrev = useCallback(() => setIdx((i) => Math.max(i - 1, 0)), []);
@@ -614,7 +690,11 @@ export default function PresentationPage() {
           {/* Center: Countdown timer (absolutely centered) */}
           {timerConfig && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className={`flex flex-col items-center ${timerColorClass}`}>
+              <div
+                className={`flex flex-col items-center ${timerColorClass} ${
+                  isRed ? "animate-pulse-alert" : ""
+                }`}
+              >
                 <span className="text-3xl font-mono font-bold leading-none tracking-tight">
                   {formatTime(remaining)}
                 </span>
