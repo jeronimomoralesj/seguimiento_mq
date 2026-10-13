@@ -486,7 +486,7 @@ function LeftPanel({ area, report }: { area: Area; report: Report }) {
   );
 }
 
-// Harsh klaxon-style alarm: two alternating low square-wave tones.
+// Soft two-tone reminder chime — much less invasive than the klaxon.
 function playAlertBeep() {
   try {
     const Ctx =
@@ -496,46 +496,42 @@ function playAlertBeep() {
     if (ctx.state === "suspended") ctx.resume();
     const now = ctx.currentTime;
 
-    // Master gain — kept under 1.0 so we don't clip the output.
+    // Master gain — quiet.
     const master = ctx.createGain();
-    master.gain.value = 0.7;
+    master.gain.value = 0.18; // was 0.7 → much quieter
     master.connect(ctx.destination);
 
-    // Mild distortion to make it harsher.
-    const shaper = ctx.createWaveShaper();
-    const curve = new Float32Array(1024);
-    for (let i = 0; i < 1024; i++) {
-      const x = (i / 1023) * 2 - 1;
-      curve[i] = Math.tanh(x * 2.5); // soft-clip, adds harmonic bite
-    }
-    shaper.curve = curve;
-    shaper.connect(master);
+    // Soft lowpass instead of harsh waveshaper distortion.
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 900;
+    filter.Q.value = 0.7;
+    filter.connect(master);
 
-    // Klaxon: alternate between 550Hz and 350Hz, 4 cycles over ~1.2s.
-    const cycles = 4;
-    const cycleDur = 0.3;      // 300ms per tone
-    for (let i = 0; i < cycles; i++) {
-      const freq = i % 2 === 0 ? 550 : 350;
-      const start = now + i * cycleDur;
+    // Two gentle sine tones, short and clean.
+    const tones = [
+      { freq: 660, start: 0.0, dur: 0.18 },
+      { freq: 520, start: 0.22, dur: 0.28 },
+    ];
 
+    tones.forEach(({ freq, start, dur }) => {
+      const t = now + start;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = "square";                 // harsh
-      osc.frequency.setValueAtTime(freq, start);
+      osc.type = "sine"; // was "square" → sine is smooth
+      osc.frequency.setValueAtTime(freq, t);
 
-      // Short attack, sustained body, sharp release — like a physical alarm.
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.55, start + 0.02);
-      gain.gain.setValueAtTime(0.55, start + cycleDur - 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + cycleDur - 0.005);
+      // Gentle attack & release — no click, no bite.
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.35, t + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
 
-      osc.connect(gain).connect(shaper);
-      osc.start(start);
-      osc.stop(start + cycleDur);
-    }
+      osc.connect(gain).connect(filter);
+      osc.start(t);
+      osc.stop(t + dur + 0.02);
+    });
 
-    // Let the tail ring out, then close.
-    setTimeout(() => ctx.close().catch(() => {}), 1600);
+    setTimeout(() => ctx.close().catch(() => {}), 1200);
   } catch {
     /* audio not available; ignore */
   }
@@ -639,7 +635,7 @@ export default function PresentationPage() {
     if (!isRed) return;
     // Fire immediately, then every 20s.
     playAlertBeep();
-    const id = setInterval(playAlertBeep, 10_000);
+    const id = setInterval(playAlertBeep, 99_000);
     return () => clearInterval(id);
   }, [isRed]);
 
