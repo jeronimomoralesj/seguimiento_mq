@@ -79,6 +79,16 @@ function weekOfMonth(monday: Date): number {
   return Math.round((monday.getTime() - weekOneMonday.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
 }
 
+// Keep stored period IDs stable while correcting the displayed week numbering.
+export function getPeriodLabel(period: string, fallback: string): string {
+  const match = /^(\d{4})-(\d{2})-W(\d+)$/.exec(period);
+  if (!match) return fallback;
+  const month = Number(match[2]) - 1;
+  if (month < 0 || month > 11) return fallback;
+  const week = Math.max(1, Number(match[3]) - 1);
+  return `Semana ${week}, ${MONTHS[month]} ${match[1]}`;
+}
+
 export function getCurrentPeriod(type: ReportPeriodType): { period: string; label: string } {
   const now = new Date();
 
@@ -102,7 +112,7 @@ export function getCurrentPeriod(type: ReportPeriodType): { period: string; labe
 
     return {
       period: `${y}-${m}-W${wom}`,
-      label: `Semana ${wom}, ${monthName} ${y}`,
+      label: getPeriodLabel(`${y}-${m}-W${wom}`, `Semana ${wom}, ${monthName} ${y}`),
     };
   }
 }

@@ -328,7 +328,7 @@ useEffect(() => {
                       reportType === type ? "border-[#F5A623] bg-[#F5A623] text-white" : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50"
                     }`}
                   >
-                    {type === "weekly" ? "📅 Semanal" : "🗓️ Mensual"}
+                    {type === "weekly" ? "📅 Semanal" : "🗓️ Consolidado mes"}
                   </button>
                 ))}
               </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AREAS } from "@/types";
@@ -551,7 +551,7 @@ export default function PresentationPage() {
   // Timer state
   const [showTimerModal, setShowTimerModal] = useState(true);
   const [timerConfig, setTimerConfig] = useState<TimerConfig | null>(null);
-  const [remaining, setRemaining] = useState(0);
+  const areaStartRef = useRef<{ key: string; elapsed: number } | null>(null);
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -582,14 +582,11 @@ export default function PresentationPage() {
     const [h, m] = timerConfig.startTime.split(":").map(Number);
     const start = new Date();
     start.setHours(h, m, 0, 0);
-    const totalMs = timerConfig.durationMinutes * 60000;
 
     const tick = () => {
       const now = Date.now();
       const elapsedMs = Math.max(0, now - start.getTime());
-      const elapsedClamped = Math.min(elapsedMs, totalMs);
-      setElapsed(Math.floor(elapsedClamped / 1000));
-      setRemaining(Math.max(0, Math.floor((totalMs - elapsedClamped) / 1000)));
+      setElapsed(Math.floor(elapsedMs / 1000));
     };
 
     tick();
@@ -619,17 +616,39 @@ export default function PresentationPage() {
   const uniqueAreaCount = AREAS.filter((a) => reports[a.slug]).length;
   const total = 1 + slideItems.length + 1; // cover + areas + closing
 
-  const [isRed, setIsRed] = useState(false);
+  const currentSlide = idx > 0 ? slideItems[idx - 1] : null;
+  const totalSecs = timerConfig ? timerConfig.durationMinutes * 60 : 0;
+  const areaSlideCount = currentSlide
+    ? slideItems.filter((slide) => slide.area.slug === currentSlide.area.slug).length
+    : 0;
+  const areaBudget = slideItems.length > 0 ? totalSecs * areaSlideCount / slideItems.length : 0;
+  const areaKey = !loading && currentSlide && timerConfig
+    ? `${reportType}:${selectedPeriod}:${currentSlide.area.slug}`
+    : null;
+  const [areaStartedAt, setAreaStartedAt] = useState(elapsed);
 
   useEffect(() => {
-    if (!timerConfig) {
-      setIsRed(false);
+    if (!areaKey) {
+      areaStartRef.current = null;
       return;
     }
-    const totalSecsLocal = timerConfig.durationMinutes * 60;
-    const color = getTimerColor(idx, total, elapsed, totalSecsLocal);
-    setIsRed(color === "text-red-400");
-  }, [timerConfig, idx, total, elapsed]);
+    if (areaStartRef.current?.key !== areaKey) {
+      areaStartRef.current = { key: areaKey, elapsed };
+      setAreaStartedAt(elapsed);
+    }
+  }, [areaKey, elapsed]);
+
+  const areaElapsed = areaStartRef.current?.key === areaKey
+    ? Math.max(0, elapsed - areaStartedAt)
+    : 0;
+  const remaining = Math.max(0, Math.ceil(areaBudget - areaElapsed));
+  const areaSlideIdx = currentSlide
+    ? slideItems.slice(0, idx - 1).filter((slide) => slide.area.slug === currentSlide.area.slug).length
+    : 0;
+  const timerColorClass = timerConfig && areaKey
+    ? getTimerColor(areaSlideIdx, areaSlideCount, areaElapsed, areaBudget)
+    : "text-white/70";
+  const isRed = !!areaKey && timerColorClass === "text-red-400";
 
   useEffect(() => {
     if (!isRed) return;
@@ -654,10 +673,6 @@ export default function PresentationPage() {
   }, [goNext, goPrev, lightbox, showTimerModal]);
 
   const periodLabel = periods.find((p) => p.period === selectedPeriod)?.periodLabel ?? selectedPeriod;
-  const currentSlide = idx > 0 ? slideItems[idx - 1] : null;
-
-  const totalSecs = timerConfig ? timerConfig.durationMinutes * 60 : 0;
-  const timerColorClass = timerConfig ? getTimerColor(idx, total, elapsed, totalSecs) : "";
 
   return (
     <>
@@ -684,7 +699,7 @@ export default function PresentationPage() {
           </div>
 
           {/* Center: Countdown timer (absolutely centered) */}
-          {timerConfig && (
+          {timerConfig && areaKey && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div
                 className={`flex flex-col items-center ${timerColorClass} ${
@@ -695,7 +710,7 @@ export default function PresentationPage() {
                   {formatTime(remaining)}
                 </span>
                 <span className="text-[9px] uppercase tracking-widest opacity-60 mt-0.5">
-                  {remaining === 0 ? "tiempo agotado" : "restante"}
+                  {currentSlide?.area.name} · {remaining === 0 ? "tiempo agotado" : "restante"}
                 </span>
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { getPeriodLabel } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { Report } from "@/lib/models/Report";
@@ -26,7 +27,9 @@ export async function GET(req: NextRequest) {
       { $project: { period: "$_id", periodLabel: 1, count: 1, latestDate: 1, _id: 0 } },
     ]);
 
-    return NextResponse.json({ periods });
+    return NextResponse.json({ periods: periods.map((period) => ({
+      ...period, periodLabel: getPeriodLabel(period.period, period.periodLabel),
+    })) });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Error al obtener períodos" }, { status: 500 });

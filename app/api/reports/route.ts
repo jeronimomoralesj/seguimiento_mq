@@ -1,3 +1,4 @@
+import { getPeriodLabel } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { Report } from "@/lib/models/Report";
@@ -20,7 +21,9 @@ export async function GET(req: NextRequest) {
       .select("-__v")
       .lean();
 
-    return NextResponse.json({ reports });
+    return NextResponse.json({ reports: reports.map((report) => ({
+      ...report, periodLabel: getPeriodLabel(report.period, report.periodLabel),
+    })) });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Error al obtener reportes" }, { status: 500 });
