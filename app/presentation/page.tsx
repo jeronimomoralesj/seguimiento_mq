@@ -11,11 +11,11 @@ interface TimerConfig { startTime: string; durationMinutes: number; }
 
 function compromisoFontSize(html: string): string {
   const len = html.replace(/<[^>]*>/g, "").trim().length;
-  if (len < 60)  return "text-lg leading-snug";
-  if (len < 120) return "text-base leading-snug";
-  if (len < 220) return "text-sm leading-relaxed";
-  if (len < 380) return "text-xs leading-relaxed";
-  return "text-[10px] leading-relaxed";
+  if (len < 60)  return "text-2xl leading-snug";
+  if (len < 120) return "text-xl leading-snug";
+  if (len < 220) return "text-xl leading-relaxed";
+  if (len < 380) return "text-lg leading-relaxed";
+  return "text-lg leading-relaxed";
 }
 
 function formatTime(totalSecs: number): string {
@@ -316,18 +316,18 @@ function SalesMainSlide({ area, report, onImageClick }: {
           <p className="text-white text-sm font-bold uppercase tracking-widest shrink-0">Informe de Ventas</p>
           {report.salesReportImage ? (
             <button onClick={() => onImageClick(report.salesReportImage!)}
-              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.salesCommitment ? "flex-[3]" : "flex-1"}`}>
+              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.salesCommitment ? "flex-[11]" : "flex-1"}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={report.salesReportImage} alt="Ventas" className="w-full h-full object-contain p-1" />
             </button>
           ) : (
-            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.salesCommitment ? "flex-[3]" : "flex-1"}`}>
+            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.salesCommitment ? "flex-[11]" : "flex-1"}`}>
               Sin imagen
             </div>
           )}
           {report.salesCommitment && (
-            <div className="flex-[2] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
+            <div className="flex-[9] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
               <div className={`rich-text-dark text-white/90 ${compromisoFontSize(report.salesCommitment)}`}
                 dangerouslySetInnerHTML={{ __html: report.salesCommitment }} />
             </div>
@@ -339,18 +339,18 @@ function SalesMainSlide({ area, report, onImageClick }: {
           <p className="text-white text-sm font-bold uppercase tracking-widest shrink-0">Informe de Recaudo</p>
           {report.collectionReportImage ? (
             <button onClick={() => onImageClick(report.collectionReportImage!)}
-              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.collectionCommitment ? "flex-[3]" : "flex-1"}`}>
+              className={`rounded-xl overflow-hidden bg-white hover:ring-2 hover:ring-[#F5A623] transition-all min-h-0 ${report.collectionCommitment ? "flex-[11]" : "flex-1"}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={report.collectionReportImage} alt="Recaudo" className="w-full h-full object-contain p-1" />
             </button>
           ) : (
-            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.collectionCommitment ? "flex-[3]" : "flex-1"}`}>
+            <div className={`rounded-xl border border-dashed border-white/10 flex items-center justify-center text-white/15 text-xs min-h-0 ${report.collectionCommitment ? "flex-[11]" : "flex-1"}`}>
               Sin imagen
             </div>
           )}
           {report.collectionCommitment && (
-            <div className="flex-[2] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
+            <div className="flex-[9] min-h-0 bg-white/5 border border-[#F5A623]/20 rounded-xl px-4 py-3 overflow-y-auto">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#F5A623] mb-2">Compromiso</p>
               <div className={`rich-text-dark text-white/90 ${compromisoFontSize(report.collectionCommitment)}`}
                 dangerouslySetInnerHTML={{ __html: report.collectionCommitment }} />
             </div>
@@ -434,7 +434,7 @@ function DeptSlide({ area, report, onImageClick }: {
 function LeftPanel({ area, report }: { area: Area; report: Report }) {
   return (
     <div className="shrink-0 flex flex-col rounded-2xl border border-white/8 overflow-hidden"
-      style={{ width: "200px", background: "rgba(255,255,255,0.04)" }}>
+      style={{ width: report.notes || (report.queVasAHacer && area.type === "sales_zone") ? "clamp(240px, 22vw, 280px)" : "200px", background: "rgba(255,255,255,0.04)" }}>
       <div className="h-1 shrink-0" style={{ backgroundColor: area.color }} />
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shrink-0"
@@ -461,10 +461,10 @@ function LeftPanel({ area, report }: { area: Area; report: Report }) {
           <>
             <div className="w-full h-px bg-white/10 shrink-0" />
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-[#F5A623] mb-2">
+              <p className="text-xs font-bold uppercase tracking-widest text-[#F5A623] mb-2">
                 ¿Qué haré diferente?
               </p>
-              <div className="rich-text-dark text-white/75 text-xs leading-relaxed"
+              <div className="rich-text-dark text-white/90 text-lg leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: report.queVasAHacer }} />
             </div>
           </>
@@ -473,10 +473,10 @@ function LeftPanel({ area, report }: { area: Area; report: Report }) {
           <>
             <div className="w-full h-px bg-white/10 shrink-0" />
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-widest text-white/40 mb-2">
+              <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">
                 {area.type === "sales_zone" ? "Comentarios" : "Metas / Comentarios"}
               </p>
-              <div className="rich-text-dark text-white/75 text-xs leading-relaxed"
+              <div className="rich-text-dark text-white/90 text-lg leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: report.notes }} />
             </div>
           </>
